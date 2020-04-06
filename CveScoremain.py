@@ -13,19 +13,19 @@ from sklearn import tree, model_selection, preprocessing, ensemble, feature_sele
 from sklearn.svm import SVC # "Support Vector Classifier"
 from sklearn.externals import joblib
 import os
-app = Flask(__name__)
+app = Flask(__name__,template_folder='template')
 MODEL_FILE = 'regression_model-v4.pkl'
 log_estimator = joblib.load(MODEL_FILE)
 
-# @app.route('/')
-# def home():
-#     global log_estimator
-#     return render_template('index.html')
+@app.route('/')
+def home():
+    global log_estimator
+    return render_template('index.html')
 
 
 @app.route('/predict', methods=['POST','GET'])
 def predict():
-    json_ = request.json
+    json_ = request.args.get('url')
     print('json:', json_)
     inputData = json_
     df = pd.read_csv(
@@ -62,8 +62,7 @@ def predict():
     #inputData = input("Please enter the input text::")
     print(classifier_loaded.predict(count_vect.transform([json_])))
     output = classifier_loaded.predict(count_vect.transform([json_]))
-    return jsonify(pd.Series(output).to_json(orient='values'))
-    #return render_template('index.html', prediction_text='Predicted CVE SCore is {}'.format(output))
+    return render_template('index.html', prediction_text='Predicted CVE SCore is {}'.format(output))
 if __name__ == '__main__':
     app.run(debug=True)
 
